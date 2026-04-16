@@ -964,7 +964,8 @@ function App() {
   const [exportSettings, setExportSettings] = useState({
     filename: '',
     title: '',
-    showModal: false
+    showModal: false,
+    wordExportStyle: 'standard'
   });
 
   useEffect(() => { 
@@ -1913,7 +1914,8 @@ ${componentLogic}
       instructionRulerStyle,
       instructionHeaderStyle,
       instructionStyle,
-      isInstructionBackgroundEnabled
+      isInstructionBackgroundEnabled,
+      exportSettings.wordExportStyle
     );
     
     setExportSettings(prev => ({ ...prev, showModal: false }));
@@ -6214,9 +6216,34 @@ ${componentLogic}
                     placeholder="Enter title..."
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Word Export Style</label>
+                  <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                    {[
+                      { id: 'standard', name: 'Standard', desc: 'Times New Roman, 1.15 spacing' },
+                      { id: 'minimalist', name: 'Minimalist', desc: 'Arial, Wide Margins, Clean' },
+                      { id: 'academic', name: 'Academic', desc: 'Double Spaced, 1" Margins' },
+                      { id: 'modern', name: 'Modern', desc: 'Trebuchet MS, Tight Margins' },
+                      { id: 'dyslexia', name: 'Dyslexia-Friendly', desc: 'Comic Sans, Large Text' }
+                    ].map(style => (
+                      <div 
+                        key={style.id}
+                        onClick={() => setExportSettings(prev => ({ ...prev, wordExportStyle: style.id }))}
+                        className={`p-3 rounded-2xl border-2 cursor-pointer flex items-center justify-between transition-all ${exportSettings.wordExportStyle === style.id ? 'border-orange-500 bg-orange-50' : 'border-slate-100 hover:border-orange-200'}`}
+                      >
+                        <div>
+                          <div className={`text-sm font-bold ${exportSettings.wordExportStyle === style.id ? 'text-orange-700' : 'text-slate-700'}`}>{style.name}</div>
+                          <div className="text-[10px] text-slate-400">{style.desc}</div>
+                        </div>
+                        {exportSettings.wordExportStyle === style.id && <i className="fa-solid fa-circle-check text-orange-500"></i>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-10">
+              <div className="grid grid-cols-2 gap-4 mt-8">
                 <button 
                   onClick={() => setExportSettings(prev => ({ ...prev, showModal: false }))}
                   className="py-5 bg-slate-100 text-slate-500 rounded-3xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"

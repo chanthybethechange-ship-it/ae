@@ -25,7 +25,8 @@ export const exportToWord = async (
   instructionRulerStyle: number = 0,
   instructionHeaderStyle: number = 0,
   instructionStyle: number = 0,
-  isInstructionBackgroundEnabled: boolean = false
+  isInstructionBackgroundEnabled: boolean = false,
+  wordExportStyle: string = 'standard'
 ) => {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlContent;
@@ -49,8 +50,35 @@ export const exportToWord = async (
   ];
   let mixIndex = 0;
 
-  const linePercentage = `200%`;
-  const exactLineHeight = `24pt`;
+  let finalFontFamily = fontFamily;
+  let mTop = '0.4in';
+  let mRight = '0.6in';
+  let mBottom = '0.4in';
+  let mLeft = '0.6in';
+  let exactLineHeight = '24pt';
+  let fontSize = '12pt';
+
+  if (wordExportStyle === 'minimalist') {
+    finalFontFamily = 'Arial, Helvetica, sans-serif';
+    mTop = '1in'; mBottom = '1in'; mLeft = '1in'; mRight = '1in';
+    exactLineHeight = '28pt';
+    fontSize = '11pt';
+  } else if (wordExportStyle === 'academic') {
+    finalFontFamily = 'Times New Roman, serif';
+    mTop = '1in'; mBottom = '1in'; mLeft = '1in'; mRight = '1in';
+    exactLineHeight = '32pt'; // Double spaced
+    fontSize = '12pt';
+  } else if (wordExportStyle === 'modern') {
+    finalFontFamily = 'Trebuchet MS, sans-serif';
+    mTop = '0.5in'; mBottom = '0.5in'; mLeft = '0.5in'; mRight = '0.5in';
+    exactLineHeight = '20pt';
+    fontSize = '11pt';
+  } else if (wordExportStyle === 'dyslexia') {
+    finalFontFamily = 'Comic Sans MS, sans-serif';
+    mTop = '0.8in'; mBottom = '0.8in'; mLeft = '0.8in'; mRight = '0.8in';
+    exactLineHeight = '30pt';
+    fontSize = '14pt';
+  }
 
   // 1. FIX: Convert all images to Base64 (This prevents "Empty Boxes")
   const images = [...Array.from(tempDiv.querySelectorAll('img')), ...Array.from(headerDiv.querySelectorAll('img'))];
@@ -400,7 +428,7 @@ export const exportToWord = async (
     finalHtml += `
       <table border="0" cellspacing="0" cellpadding="0" width="100%" ${pageBreak} style="margin: 0; padding: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; width: 100%;">
         <tr>
-          <td align="left" style="padding: 0; margin: 0; font-family: '${fontFamily}', serif; font-size: 12pt; line-height: ${exactLineHeight}; mso-line-height-rule: exactly; border: none;">
+          <td align="left" style="padding: 0; margin: 0; font-family: '${finalFontFamily}', serif; font-size: ${fontSize}; line-height: ${exactLineHeight}; mso-line-height-rule: exactly; border: none;">
             ${el.outerHTML}
           </td>
         </tr>
@@ -881,18 +909,13 @@ export const exportToWord = async (
   let metadataHtml = "";
   if (metadata) {
     metadataHtml = `
-      <div style="margin-bottom: 20pt; border-bottom: 1pt solid #ccc; padding-bottom: 10pt; font-size: 9pt; color: #666; font-family: '${fontFamily}', serif;">
+      <div style="margin-bottom: 20pt; border-bottom: 1pt solid #ccc; padding-bottom: 10pt; font-size: 9pt; color: #666; font-family: '${finalFontFamily}', serif;">
         ${metadata.title ? `<div style="font-size: 14pt; font-weight: bold; color: #000; margin-bottom: 5pt;">${metadata.title}</div>` : ''}
         ${metadata.author ? `<div><strong>Author:</strong> ${metadata.author}</div>` : ''}
         ${metadata.date ? `<div><strong>Date:</strong> ${metadata.date}</div>` : `<div><strong>Exported on:</strong> ${new Date().toLocaleDateString()}</div>`}
       </div>
     `;
   }
-
-  const mTop = '0.4in';
-  const mRight = '0.6in';
-  const mBottom = '0.4in';
-  const mLeft = '0.6in';
 
   const frameStyle = isFrameEnabled ? 'border: 1.5pt solid black; padding: 10pt;' : '';
 
@@ -1139,8 +1162,8 @@ export const exportToWord = async (
           page: Section1; 
         }
         body { 
-          font-family: "${fontFamily}", serif; 
-          font-size: 12pt; 
+          font-family: "${finalFontFamily}", serif; 
+          font-size: ${fontSize}; 
           line-height: ${exactLineHeight}; 
           mso-line-height-rule: exactly; 
           margin: 0;
@@ -1161,8 +1184,8 @@ export const exportToWord = async (
           width: 100%;
         }
         td { 
-          font-family: "${fontFamily}", serif; 
-          font-size: 12pt; 
+          font-family: "${finalFontFamily}", serif; 
+          font-size: ${fontSize}; 
           line-height: ${exactLineHeight}; 
           mso-line-height-rule: exactly; 
           padding: 0;
